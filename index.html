@@ -96,11 +96,13 @@
         /* Results */
         .result-box {
             margin-top: 20px;
-            padding: 15px;
+            padding: 20px;
             border-radius: 5px;
-            background-color: #d1fae5;
-            color: #065f46;
-            font-weight: bold;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #1e293b;
+            font-size: 1.05rem;
+            line-height: 1.6;
             display: none;
         }
         .warning-box {
@@ -113,10 +115,19 @@
             display: none;
             margin-bottom: -10px;
         }
-        code { background: #f3f4f6; padding: 5px 8px; border-radius: 4px; display: inline-block; margin: 15px 0; }
+        .final-answer {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #d1fae5;
+            color: #065f46;
+            font-weight: bold;
+            border-radius: 5px;
+            display: inline-block;
+        }
+        code { background: #e2e8f0; padding: 2px 6px; border-radius: 4px; }
         
         /* Chart Container */
-        .chart-container { width: 100%; max-width: 800px; margin-top: 20px; }
+        .chart-container { width: 100%; max-width: 800px; margin-top: 30px; display: none; border-top: 1px solid #e2e8f0; padding-top: 20px;}
     </style>
 </head>
 <body>
@@ -137,21 +148,12 @@
                     <option value="P/F">Present Worth (P/F)</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label>Enter Amount</label>
-                <input type="number" id="single-amt" value="10000.0" step="any">
-            </div>
-            <div class="form-group">
-                <label>Interest Rate (%)</label>
-                <input type="number" id="single-i" value="8.0" step="any">
-            </div>
-            <div class="form-group">
-                <label>Number of Periods</label>
-                <input type="number" id="single-n" value="5" step="any">
-            </div>
+            <div class="form-group"><label>Enter Amount</label><input type="number" id="single-amt" value="10000.0" step="any"></div>
+            <div class="form-group"><label>Interest Rate (%)</label><input type="number" id="single-i" value="8.0" step="any"></div>
+            <div class="form-group"><label>Number of Periods</label><input type="number" id="single-n" value="5" step="any"></div>
             <button class="calc-btn" onclick="calcSingle()">Calculate</button>
-            <div id="single-formula"></div>
             <div id="single-res" class="result-box"></div>
+            <div class="chart-container" id="chart-box-single"><canvas id="canvas-single"></canvas></div>
         </div>
 
         <div id="sec-uniform" class="section">
@@ -159,10 +161,10 @@
             <div class="form-group">
                 <label>Select Calculation</label>
                 <select id="uni-opt">
-                    <option value="P/A">P/A</option>
-                    <option value="A/P">A/P</option>
-                    <option value="F/A">F/A</option>
-                    <option value="A/F">A/F</option>
+                    <option value="P/A">Present Worth (P/A)</option>
+                    <option value="A/P">Annual Worth (A/P)</option>
+                    <option value="F/A">Future Worth (F/A)</option>
+                    <option value="A/F">Annual Worth (A/F)</option>
                 </select>
             </div>
             <div class="form-group"><label>Amount</label><input type="number" id="uni-amt" value="1000.0" step="any"></div>
@@ -170,6 +172,7 @@
             <div class="form-group"><label>Periods</label><input type="number" id="uni-n" value="5" step="any"></div>
             <button class="calc-btn" onclick="calcUniform()">Calculate</button>
             <div id="uni-res" class="result-box"></div>
+            <div class="chart-container" id="chart-box-uni"><canvas id="canvas-uni"></canvas></div>
         </div>
 
         <div id="sec-arithmetic" class="section">
@@ -179,6 +182,7 @@
             <div class="form-group"><label>Periods</label><input type="number" id="arith-n" value="5" step="any"></div>
             <button class="calc-btn" onclick="calcArithmetic()">Calculate</button>
             <div id="arith-res" class="result-box"></div>
+            <div class="chart-container" id="chart-box-arith"><canvas id="canvas-arith"></canvas></div>
         </div>
 
         <div id="sec-geometric" class="section">
@@ -190,6 +194,7 @@
             <button class="calc-btn" onclick="calcGeometric()">Calculate</button>
             <div id="geo-warn" class="warning-box"></div>
             <div id="geo-res" class="result-box"></div>
+            <div class="chart-container" id="chart-box-geo"><canvas id="canvas-geo"></canvas></div>
         </div>
 
         <div id="sec-shifted" class="section">
@@ -197,17 +202,19 @@
             <div class="form-group"><label>Annual Amount</label><input type="number" id="shift-a" value="1000.0" step="any"></div>
             <div class="form-group"><label>Interest Rate (%)</label><input type="number" id="shift-i" value="10.0" step="any"></div>
             <div class="form-group"><label>Number of Payments</label><input type="number" id="shift-n" value="5" step="any"></div>
-            <div class="form-group"><label>Shift Years</label><input type="number" id="shift-s" value="3" step="any"></div>
+            <div class="form-group"><label>Shift Years (Delay)</label><input type="number" id="shift-s" value="3" step="any"></div>
             <button class="calc-btn" onclick="calcShifted()">Calculate</button>
             <div id="shift-res" class="result-box"></div>
+            <div class="chart-container" id="chart-box-shift"><canvas id="canvas-shift"></canvas></div>
         </div>
 
         <div id="sec-mixed" class="section">
             <h3>Mixed Cash Flows</h3>
-            <div class="form-group"><label>Enter Cash Flows (comma separated)</label><input type="text" id="mix-cf" value="1000,2000,3000,4000"></div>
+            <div class="form-group"><label>Enter Cash Flows (comma separated, starting Year 1)</label><input type="text" id="mix-cf" value="1000,2000,3000,4000"></div>
             <div class="form-group"><label>Interest Rate (%)</label><input type="number" id="mix-i" value="10.0" step="any"></div>
             <button class="calc-btn" onclick="calcMixed()">Calculate</button>
             <div id="mix-res" class="result-box"></div>
+            <div class="chart-container" id="chart-box-mix"><canvas id="canvas-mix"></canvas></div>
         </div>
 
         <div id="sec-unknown" class="section">
@@ -225,6 +232,7 @@
             <div class="form-group" id="unk-i-group" style="display:none;"><label>Interest Rate (%)</label><input type="number" id="unk-i" value="10.0" step="any"></div>
             <button class="calc-btn" onclick="calcUnknown()">Calculate</button>
             <div id="unk-res" class="result-box"></div>
+            <div class="chart-container" id="chart-box-unk"><canvas id="canvas-unk"></canvas></div>
         </div>
 
         <div id="sec-simple" class="section">
@@ -234,7 +242,7 @@
             <div class="form-group"><label>Years</label><input type="number" id="sim-n" value="5" step="any"></div>
             <button class="calc-btn" onclick="calcSimpleComp()">Calculate</button>
             <div id="sim-res" class="result-box"></div>
-            <div id="comp-res" class="result-box" style="margin-top:10px;"></div>
+            <div class="chart-container" id="chart-box-sim"><canvas id="canvas-sim"></canvas></div>
         </div>
 
         <div id="sec-equiv" class="section">
@@ -244,15 +252,14 @@
             <div class="form-group"><label>Periods</label><input type="number" id="eq-n" value="5" step="any"></div>
             <button class="calc-btn" onclick="calcEquiv()">Calculate</button>
             <div id="eq-res" class="result-box"></div>
+            <div class="chart-container" id="chart-box-eq"><canvas id="canvas-eq"></canvas></div>
         </div>
 
         <div id="sec-diagram" class="section">
-            <h3>Cash Flow Diagram</h3>
-            <div class="form-group"><label>Enter Cash Flows (comma separated)</label><input type="text" id="diag-cf" value="-5000,1000,1500,2000,2500"></div>
-            <button class="calc-btn" onclick="drawDiagram()">Draw Diagram</button>
-            <div class="chart-container">
-                <canvas id="cfChart"></canvas>
-            </div>
+            <h3>Custom Cash Flow Diagram</h3>
+            <div class="form-group"><label>Enter Cash Flows (comma separated, starting Year 0)</label><input type="text" id="diag-cf" value="-5000,1000,1500,2000,2500"></div>
+            <button class="calc-btn" onclick="drawOnlyDiagram()">Draw Diagram</button>
+            <div class="chart-container" id="chart-box-diag"><canvas id="canvas-diag"></canvas></div>
         </div>
     </div>
 
@@ -281,28 +288,64 @@
                 btn.classList.add("active");
                 document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
                 document.getElementById(item.id).classList.add("active");
-                hideAllResults(); // Reset results on tab change
+                hideAllResults();
             };
             sidebar.appendChild(btn);
         });
 
-        // Helper to format currency
         const formatMoney = (num) => "$" + num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         
-        // Helper to clear results
         function hideAllResults() {
-            document.querySelectorAll('.result-box, .warning-box, code').forEach(el => {
+            document.querySelectorAll('.result-box, .warning-box, .chart-container').forEach(el => {
                 el.style.display = 'none';
-                el.innerHTML = '';
             });
         }
+        
         function showRes(id, html) {
             let el = document.getElementById(id);
             el.innerHTML = html;
             el.style.display = 'block';
         }
 
-        // --- Calculators ---
+        // --- Global Chart Function ---
+        let currentChartInst = null;
+        function renderChart(boxId, canvasId, cashflows) {
+            document.getElementById(boxId).style.display = 'block';
+            let ctx = document.getElementById(canvasId).getContext('2d');
+            
+            if (window[canvasId + '_inst']) {
+                window[canvasId + '_inst'].destroy();
+            }
+            
+            let labels = cashflows.map((_, i) => "Year " + i);
+            let bgColors = cashflows.map(val => val >= 0 ? 'rgba(16, 185, 129, 0.8)' : 'rgba(239, 68, 68, 0.8)');
+            let borderColors = cashflows.map(val => val >= 0 ? 'rgba(16, 185, 129, 1)' : 'rgba(239, 68, 68, 1)');
+
+            window[canvasId + '_inst'] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Cash Flow',
+                        data: cashflows,
+                        backgroundColor: bgColors,
+                        borderColor: borderColors,
+                        borderWidth: 1,
+                        barPercentage: 0.15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { title: { display: true, text: 'Amount ($)' } },
+                        x: { title: { display: true, text: 'Time (Years)' } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // --- Calculators with Steps & Charts ---
         
         function calcSingle() {
             let opt = document.getElementById("single-opt").value;
@@ -310,87 +353,151 @@
             let i = parseFloat(document.getElementById("single-i").value) / 100;
             let n = parseFloat(document.getElementById("single-n").value);
             
-            let formulaBox = document.getElementById("single-formula");
-            formulaBox.style.display = 'block';
+            let steps = "", cfs = new Array(Math.ceil(n) + 1).fill(0);
 
             if (opt === "F/P") {
                 let F = amt * Math.pow((1 + i), n);
-                formulaBox.innerHTML = "<code>F = P(1+i)^n</code>";
-                showRes("single-res", "Future Worth = " + formatMoney(F));
+                steps = `
+                    <strong>Step 1: Formula</strong><br><code>F = P(1 + i)<sup>n</sup></code><br><br>
+                    <strong>Step 2: Substitute Values</strong><br><code>F = ${amt} &times; (1 + ${i})<sup>${n}</sup></code><br><br>
+                    <div class="final-answer">Final Answer: Future Worth = ${formatMoney(F)}</div>`;
+                cfs[0] = -amt; cfs[cfs.length - 1] = F;
             } else {
-                let P = amt * (1 / Math.pow((1 + i), n));
-                formulaBox.innerHTML = "<code>P = F/(1+i)^n</code>";
-                showRes("single-res", "Present Worth = " + formatMoney(P));
+                let P = amt / Math.pow((1 + i), n);
+                steps = `
+                    <strong>Step 1: Formula</strong><br><code>P = F / (1 + i)<sup>n</sup></code><br><br>
+                    <strong>Step 2: Substitute Values</strong><br><code>P = ${amt} / (1 + ${i})<sup>${n}</sup></code><br><br>
+                    <div class="final-answer">Final Answer: Present Worth = ${formatMoney(P)}</div>`;
+                cfs[cfs.length - 1] = amt; cfs[0] = -P;
             }
+            showRes("single-res", steps);
+            renderChart("chart-box-single", "canvas-single", cfs);
         }
 
         function calcUniform() {
             let opt = document.getElementById("uni-opt").value;
             let amt = parseFloat(document.getElementById("uni-amt").value);
             let i = parseFloat(document.getElementById("uni-i").value) / 100;
-            let n = parseFloat(document.getElementById("uni-n").value);
-            let factor, result, text;
-
-            let num = Math.pow((1+i), n) - 1;
+            let n = Math.ceil(parseFloat(document.getElementById("uni-n").value));
             
+            let num = Math.pow((1+i), n) - 1;
+            let result = 0, steps = "", cfs = new Array(n + 1).fill(0);
+
             if (opt === "P/A") {
-                factor = num / (i * Math.pow((1+i), n));
+                let factor = num / (i * Math.pow((1+i), n));
                 result = amt * factor;
-                text = "Present Worth";
+                steps = `<strong>Step 1: Formula</strong><br><code>P = A &times; [((1+i)<sup>n</sup> - 1) / (i(1+i)<sup>n</sup>)]</code><br><br>
+                         <strong>Step 2: Substitute Values</strong><br><code>P = ${amt} &times; [((1+${i})<sup>${n}</sup> - 1) / (${i}(1+${i})<sup>${n}</sup>)]</code><br><br>
+                         <div class="final-answer">Present Worth = ${formatMoney(result)}</div>`;
+                cfs[0] = -result; for(let j=1; j<=n; j++) cfs[j] = amt;
             } else if (opt === "A/P") {
-                factor = (i * Math.pow((1+i), n)) / num;
+                let factor = (i * Math.pow((1+i), n)) / num;
                 result = amt * factor;
-                text = "Annual Amount";
+                steps = `<strong>Step 1: Formula</strong><br><code>A = P &times; [(i(1+i)<sup>n</sup>) / ((1+i)<sup>n</sup> - 1)]</code><br><br>
+                         <strong>Step 2: Substitute Values</strong><br><code>A = ${amt} &times; [(${i}(1+${i})<sup>${n}</sup>) / ((1+${i})<sup>${n}</sup> - 1)]</code><br><br>
+                         <div class="final-answer">Annual Amount = ${formatMoney(result)}</div>`;
+                cfs[0] = -amt; for(let j=1; j<=n; j++) cfs[j] = result;
             } else if (opt === "F/A") {
-                factor = num / i;
+                let factor = num / i;
                 result = amt * factor;
-                text = "Future Worth";
+                steps = `<strong>Step 1: Formula</strong><br><code>F = A &times; [((1+i)<sup>n</sup> - 1) / i]</code><br><br>
+                         <strong>Step 2: Substitute Values</strong><br><code>F = ${amt} &times; [((1+${i})<sup>${n}</sup> - 1) / ${i}]</code><br><br>
+                         <div class="final-answer">Future Worth = ${formatMoney(result)}</div>`;
+                for(let j=1; j<=n; j++) cfs[j] = -amt; cfs[n] += result; // outflows for A, big inflow at end
             } else if (opt === "A/F") {
-                factor = i / num;
+                let factor = i / num;
                 result = amt * factor;
-                text = "Annual Amount";
+                steps = `<strong>Step 1: Formula</strong><br><code>A = F &times; [i / ((1+i)<sup>n</sup> - 1)]</code><br><br>
+                         <strong>Step 2: Substitute Values</strong><br><code>A = ${amt} &times; [${i} / ((1+${i})<sup>${n}</sup> - 1)]</code><br><br>
+                         <div class="final-answer">Annual Amount = ${formatMoney(result)}</div>`;
+                for(let j=1; j<=n; j++) cfs[j] = -result; cfs[n] += amt;
             }
-            showRes("uni-res", text + " = " + formatMoney(result));
+            showRes("uni-res", steps);
+            renderChart("chart-box-uni", "canvas-uni", cfs);
         }
 
         function calcArithmetic() {
             let G = parseFloat(document.getElementById("arith-g").value);
             let i = parseFloat(document.getElementById("arith-i").value) / 100;
-            let n = parseFloat(document.getElementById("arith-n").value);
+            let n = Math.ceil(parseFloat(document.getElementById("arith-n").value));
             
-            let AG = (1/i) - (n / (Math.pow((1+i), n) - 1));
-            let A = G * AG;
-            showRes("arith-res", "Equivalent Annual Amount = " + formatMoney(A));
+            let AG_factor = (1/i) - (n / (Math.pow((1+i), n) - 1));
+            let A = G * AG_factor;
+            
+            let steps = `
+                <strong>Step 1: Formula for A/G Factor</strong><br><code>A = G &times; [(1/i) - n/((1+i)<sup>n</sup> - 1)]</code><br><br>
+                <strong>Step 2: Substitute Values</strong><br><code>A = ${G} &times; [(1/${i}) - ${n}/((1+${i})<sup>${n}</sup> - 1)]</code><br><br>
+                <div class="final-answer">Equivalent Annual Amount = ${formatMoney(A)}</div>
+            `;
+            showRes("arith-res", steps);
+
+            let cfs = new Array(n + 1).fill(0);
+            for(let j=1; j<=n; j++) {
+                cfs[j] = (j - 1) * G; 
+            }
+            renderChart("chart-box-arith", "canvas-arith", cfs);
         }
 
         function calcGeometric() {
             let A1 = parseFloat(document.getElementById("geo-a1").value);
             let g = parseFloat(document.getElementById("geo-g").value) / 100;
             let i = parseFloat(document.getElementById("geo-i").value) / 100;
-            let n = parseFloat(document.getElementById("geo-n").value);
-            let P;
+            let n = Math.ceil(parseFloat(document.getElementById("geo-n").value));
+            let P, steps;
 
             document.getElementById("geo-warn").style.display = 'none';
 
             if (Math.abs(i - g) < 1e-9) {
                 P = (A1 * n) / (1 + i);
-                showRes("geo-warn", "Special Case Used: i = g");
+                showRes("geo-warn", "Special Case Used: Interest rate (i) equals Growth rate (g)");
+                steps = `
+                    <strong>Step 1: Formula (when i = g)</strong><br><code>P = (A1 &times; n) / (1 + i)</code><br><br>
+                    <strong>Step 2: Substitute Values</strong><br><code>P = (${A1} &times; ${n}) / (1 + ${i})</code><br><br>
+                    <div class="final-answer">Present Worth = ${formatMoney(P)}</div>`;
             } else {
                 P = (A1 / (i - g)) * (1 - Math.pow((1+g)/(1+i), n));
+                steps = `
+                    <strong>Step 1: Formula (i &ne; g)</strong><br><code>P = [A1 / (i - g)] &times; [1 - ((1+g)/(1+i))<sup>n</sup>]</code><br><br>
+                    <strong>Step 2: Substitute Values</strong><br><code>P = [${A1} / (${i} - ${g})] &times; [1 - ((1+${g})/(1+${i}))<sup>${n}</sup>]</code><br><br>
+                    <div class="final-answer">Present Worth = ${formatMoney(P)}</div>`;
             }
-            showRes("geo-res", "Present Worth = " + formatMoney(P));
+            showRes("geo-res", steps);
+
+            let cfs = new Array(n + 1).fill(0);
+            cfs[0] = -P;
+            for(let j=1; j<=n; j++) {
+                cfs[j] = A1 * Math.pow(1+g, j-1);
+            }
+            renderChart("chart-box-geo", "canvas-geo", cfs);
         }
 
         function calcShifted() {
             let A = parseFloat(document.getElementById("shift-a").value);
             let i = parseFloat(document.getElementById("shift-i").value) / 100;
-            let n = parseFloat(document.getElementById("shift-n").value);
-            let shift = parseFloat(document.getElementById("shift-s").value);
+            let n = Math.ceil(parseFloat(document.getElementById("shift-n").value));
+            let shift = Math.ceil(parseFloat(document.getElementById("shift-s").value));
             
             let PA = (Math.pow((1+i), n) - 1) / (i * Math.pow((1+i), n));
-            let P = A * PA;
-            let shifted_P = P / Math.pow((1+i), shift);
-            showRes("shift-res", "Shifted Present Worth = " + formatMoney(shifted_P));
+            let P_shifted = A * PA;
+            let P_actual = P_shifted / Math.pow((1+i), shift);
+            
+            let steps = `
+                <strong>Step 1: Calculate Present Worth at Shifted Year (P')</strong><br>
+                <code>P' = A &times; (P/A, i, n) = ${A} &times; [((1+${i})<sup>${n}</sup> - 1) / (${i}(1+${i})<sup>${n}</sup>)]</code><br>
+                <code>P' = ${formatMoney(P_shifted)}</code><br><br>
+                <strong>Step 2: Shift P' back to Year 0 (P = P' / (1+i)<sup>shift</sup>)</strong><br>
+                <code>P = ${formatMoney(P_shifted)} / (1+${i})<sup>${shift}</sup></code><br><br>
+                <div class="final-answer">True Present Worth (Year 0) = ${formatMoney(P_actual)}</div>
+            `;
+            showRes("shift-res", steps);
+
+            let totalYears = shift + n;
+            let cfs = new Array(totalYears + 1).fill(0);
+            cfs[0] = -P_actual;
+            for(let j = shift + 1; j <= totalYears; j++) {
+                cfs[j] = A;
+            }
+            renderChart("chart-box-shift", "canvas-shift", cfs);
         }
 
         function calcMixed() {
@@ -399,11 +506,20 @@
             let cashflows = valStr.split(",").map(x => parseFloat(x.trim()));
             
             let PW = 0;
+            let steps = "<strong>Step 1: Discount each cash flow to Year 0 [ P = CF / (1+i)<sup>n</sup> ]</strong><br><br>";
+            
             cashflows.forEach((cf, index) => {
                 let year = index + 1;
-                PW += cf / Math.pow((1+i), year);
+                let discounted = cf / Math.pow((1+i), year);
+                PW += discounted;
+                steps += `Year ${year}: <code>${cf} / (1+${i})<sup>${year}</sup> = ${formatMoney(discounted)}</code><br>`;
             });
-            showRes("mix-res", "Present Worth = " + formatMoney(PW));
+
+            steps += `<br><strong>Step 2: Sum all discounted values</strong><br><div class="final-answer">Present Worth = ${formatMoney(PW)}</div>`;
+            showRes("mix-res", steps);
+
+            let chartCfs = [ -PW, ...cashflows ];
+            renderChart("chart-box-mix", "canvas-mix", chartCfs);
         }
 
         function toggleUnknownInputs() {
@@ -416,82 +532,78 @@
             let opt = document.getElementById("unk-opt").value;
             let P = parseFloat(document.getElementById("unk-p").value);
             let F = parseFloat(document.getElementById("unk-f").value);
+            let steps = "", cfs = [];
             
             if (opt === "Find i") {
-                let n = parseFloat(document.getElementById("unk-n").value);
+                let n = Math.ceil(parseFloat(document.getElementById("unk-n").value));
                 let i = Math.pow((F/P), (1/n)) - 1;
-                showRes("unk-res", "Interest Rate = " + (i*100).toFixed(4) + "%");
+                steps = `
+                    <strong>Step 1: Isolate 'i' from F = P(1+i)<sup>n</sup></strong><br><code>i = (F / P)<sup>(1/n)</sup> - 1</code><br><br>
+                    <strong>Step 2: Substitute Values</strong><br><code>i = (${F} / ${P})<sup>(1/${n})</sup> - 1</code><br><br>
+                    <div class="final-answer">Interest Rate = ${(i*100).toFixed(4)}%</div>`;
+                cfs = new Array(n + 1).fill(0);
+                cfs[0] = -P; cfs[n] = F;
             } else {
                 let i = parseFloat(document.getElementById("unk-i").value) / 100;
                 let n = Math.log(F/P) / Math.log(1+i);
-                showRes("unk-res", "Periods = " + n.toFixed(2));
+                steps = `
+                    <strong>Step 1: Isolate 'n' using Logarithms from F = P(1+i)<sup>n</sup></strong><br><code>n = ln(F/P) / ln(1+i)</code><br><br>
+                    <strong>Step 2: Substitute Values</strong><br><code>n = ln(${F}/${P}) / ln(1+${i})</code><br><br>
+                    <div class="final-answer">Periods (n) = ${n.toFixed(3)}</div>`;
+                cfs = new Array(Math.ceil(n) + 1).fill(0);
+                cfs[0] = -P; cfs[Math.ceil(n)] = F;
             }
+            showRes("unk-res", steps);
+            renderChart("chart-box-unk", "canvas-unk", cfs);
         }
 
         function calcSimpleComp() {
             let P = parseFloat(document.getElementById("sim-p").value);
             let i = parseFloat(document.getElementById("sim-i").value) / 100;
-            let n = parseFloat(document.getElementById("sim-n").value);
+            let n = Math.ceil(parseFloat(document.getElementById("sim-n").value));
             
             let simple = P * (1 + i * n);
             let compound = P * Math.pow((1+i), n);
             
-            showRes("sim-res", "Simple Interest Amount = " + formatMoney(simple));
-            showRes("comp-res", "Compound Interest Amount = " + formatMoney(compound));
+            let steps = `
+                <strong>Simple Interest</strong><br>
+                <code>F = P(1 + in) = ${P}(1 + ${i}&times;${n}) = ${formatMoney(simple)}</code><br><br>
+                <strong>Compound Interest</strong><br>
+                <code>F = P(1 + i)<sup>n</sup> = ${P}(1 + ${i})<sup>${n}</sup> = ${formatMoney(compound)}</code><br><br>
+                <div class="final-answer" style="background:#e0e7ff; color:#3730a3;">Difference = ${formatMoney(compound - simple)}</div>
+            `;
+            showRes("sim-res", steps);
+
+            let cfs = new Array(n + 1).fill(0);
+            cfs[0] = -P; cfs[n] = compound;
+            renderChart("chart-box-sim", "canvas-sim", cfs);
         }
 
         function calcEquiv() {
             let P = parseFloat(document.getElementById("eq-p").value);
             let i = parseFloat(document.getElementById("eq-i").value) / 100;
-            let n = parseFloat(document.getElementById("eq-n").value);
+            let n = Math.ceil(parseFloat(document.getElementById("eq-n").value));
             
             let A = P * ((i * Math.pow((1+i), n)) / (Math.pow((1+i), n) - 1));
-            showRes("eq-res", "Equivalent Annual Amount = " + formatMoney(A));
+            let steps = `
+                <strong>Step 1: Convert Present Worth to Equivalent Annual Uniform Series (A/P)</strong><br>
+                <code>A = P &times; [(i(1+i)<sup>n</sup>) / ((1+i)<sup>n</sup> - 1)]</code><br><br>
+                <strong>Step 2: Substitute Values</strong><br>
+                <code>A = ${P} &times; [(${i}(1+${i})<sup>${n}</sup>) / ((1+${i})<sup>${n}</sup> - 1)]</code><br><br>
+                <div class="final-answer">Equivalent Annual Amount = ${formatMoney(A)}</div>
+            `;
+            showRes("eq-res", steps);
+
+            let cfs = new Array(n + 1).fill(0);
+            cfs[0] = -P;
+            for(let j=1; j<=n; j++) cfs[j] = A;
+            renderChart("chart-box-eq", "canvas-eq", cfs);
         }
 
-        // --- Chart.js ---
-        let cfChartInst = null;
-        function drawDiagram() {
+        function drawOnlyDiagram() {
             let valStr = document.getElementById("diag-cf").value;
             let cashflows = valStr.split(",").map(x => parseFloat(x.trim()));
-            let labels = Array.from({length: cashflows.length}, (_, i) => "Year " + i);
-            
-            let bgColors = cashflows.map(val => val >= 0 ? 'rgba(16, 185, 129, 0.7)' : 'rgba(239, 68, 68, 0.7)');
-            let borderColors = cashflows.map(val => val >= 0 ? 'rgba(16, 185, 129, 1)' : 'rgba(239, 68, 68, 1)');
-
-            const ctx = document.getElementById('cfChart').getContext('2d');
-            
-            if (cfChartInst) cfChartInst.destroy();
-            
-            cfChartInst = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Cash Flow',
-                        data: cashflows,
-                        backgroundColor: bgColors,
-                        borderColor: borderColors,
-                        borderWidth: 1,
-                        barPercentage: 0.2 // makes bars thin like arrows
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: { 
-                            beginAtZero: true,
-                            title: { display: true, text: 'Cash Flow Amount' }
-                        },
-                        x: {
-                            title: { display: true, text: 'Time (Years)' }
-                        }
-                    },
-                    plugins: {
-                        legend: { display: false }
-                    }
-                }
-            });
+            renderChart("chart-box-diag", "canvas-diag", cashflows);
         }
     </script>
 </body>
