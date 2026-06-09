@@ -115,4 +115,384 @@
         }
         code { background: #f3f4f6; padding: 5px 8px; border-radius: 4px; display: inline-block; margin: 15px 0; }
         
-        /* Chart Container
+        /* Chart Container */
+        .chart-container { width: 100%; max-width: 800px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar" id="sidebar">
+        <h2>Select Topic</h2>
+        </div>
+
+    <div class="main-content">
+        <h1 class="header-title">Engineering Economy Calculator</h1>
+
+        <div id="sec-single" class="section active">
+            <h3>Single Amount Factors</h3>
+            <div class="form-group">
+                <label>Select Calculation</label>
+                <select id="single-opt">
+                    <option value="F/P">Future Worth (F/P)</option>
+                    <option value="P/F">Present Worth (P/F)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Enter Amount</label>
+                <input type="number" id="single-amt" value="10000.0" step="any">
+            </div>
+            <div class="form-group">
+                <label>Interest Rate (%)</label>
+                <input type="number" id="single-i" value="8.0" step="any">
+            </div>
+            <div class="form-group">
+                <label>Number of Periods</label>
+                <input type="number" id="single-n" value="5" step="any">
+            </div>
+            <button class="calc-btn" onclick="calcSingle()">Calculate</button>
+            <div id="single-formula"></div>
+            <div id="single-res" class="result-box"></div>
+        </div>
+
+        <div id="sec-uniform" class="section">
+            <h3>Uniform Series</h3>
+            <div class="form-group">
+                <label>Select Calculation</label>
+                <select id="uni-opt">
+                    <option value="P/A">P/A</option>
+                    <option value="A/P">A/P</option>
+                    <option value="F/A">F/A</option>
+                    <option value="A/F">A/F</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Amount</label><input type="number" id="uni-amt" value="1000.0" step="any"></div>
+            <div class="form-group"><label>Interest Rate (%)</label><input type="number" id="uni-i" value="10.0" step="any"></div>
+            <div class="form-group"><label>Periods</label><input type="number" id="uni-n" value="5" step="any"></div>
+            <button class="calc-btn" onclick="calcUniform()">Calculate</button>
+            <div id="uni-res" class="result-box"></div>
+        </div>
+
+        <div id="sec-arithmetic" class="section">
+            <h3>Arithmetic Gradient</h3>
+            <div class="form-group"><label>Gradient G</label><input type="number" id="arith-g" value="100.0" step="any"></div>
+            <div class="form-group"><label>Interest Rate (%)</label><input type="number" id="arith-i" value="8.0" step="any"></div>
+            <div class="form-group"><label>Periods</label><input type="number" id="arith-n" value="5" step="any"></div>
+            <button class="calc-btn" onclick="calcArithmetic()">Calculate</button>
+            <div id="arith-res" class="result-box"></div>
+        </div>
+
+        <div id="sec-geometric" class="section">
+            <h3>Geometric Gradient</h3>
+            <div class="form-group"><label>First Payment A1</label><input type="number" id="geo-a1" value="1000.0" step="any"></div>
+            <div class="form-group"><label>Growth Rate g (%)</label><input type="number" id="geo-g" value="5.0" step="any"></div>
+            <div class="form-group"><label>Interest Rate i (%)</label><input type="number" id="geo-i" value="10.0" step="any"></div>
+            <div class="form-group"><label>Periods</label><input type="number" id="geo-n" value="5" step="any"></div>
+            <button class="calc-btn" onclick="calcGeometric()">Calculate</button>
+            <div id="geo-warn" class="warning-box"></div>
+            <div id="geo-res" class="result-box"></div>
+        </div>
+
+        <div id="sec-shifted" class="section">
+            <h3>Shifted Series</h3>
+            <div class="form-group"><label>Annual Amount</label><input type="number" id="shift-a" value="1000.0" step="any"></div>
+            <div class="form-group"><label>Interest Rate (%)</label><input type="number" id="shift-i" value="10.0" step="any"></div>
+            <div class="form-group"><label>Number of Payments</label><input type="number" id="shift-n" value="5" step="any"></div>
+            <div class="form-group"><label>Shift Years</label><input type="number" id="shift-s" value="3" step="any"></div>
+            <button class="calc-btn" onclick="calcShifted()">Calculate</button>
+            <div id="shift-res" class="result-box"></div>
+        </div>
+
+        <div id="sec-mixed" class="section">
+            <h3>Mixed Cash Flows</h3>
+            <div class="form-group"><label>Enter Cash Flows (comma separated)</label><input type="text" id="mix-cf" value="1000,2000,3000,4000"></div>
+            <div class="form-group"><label>Interest Rate (%)</label><input type="number" id="mix-i" value="10.0" step="any"></div>
+            <button class="calc-btn" onclick="calcMixed()">Calculate</button>
+            <div id="mix-res" class="result-box"></div>
+        </div>
+
+        <div id="sec-unknown" class="section">
+            <h3>Find Unknown i or n</h3>
+            <div class="form-group">
+                <label>Select</label>
+                <select id="unk-opt" onchange="toggleUnknownInputs()">
+                    <option value="Find i">Find i</option>
+                    <option value="Find n">Find n</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Present Worth</label><input type="number" id="unk-p" value="1000.0" step="any"></div>
+            <div class="form-group"><label>Future Worth</label><input type="number" id="unk-f" value="2000.0" step="any"></div>
+            <div class="form-group" id="unk-n-group"><label>Periods</label><input type="number" id="unk-n" value="5" step="any"></div>
+            <div class="form-group" id="unk-i-group" style="display:none;"><label>Interest Rate (%)</label><input type="number" id="unk-i" value="10.0" step="any"></div>
+            <button class="calc-btn" onclick="calcUnknown()">Calculate</button>
+            <div id="unk-res" class="result-box"></div>
+        </div>
+
+        <div id="sec-simple" class="section">
+            <h3>Simple vs Compound Interest</h3>
+            <div class="form-group"><label>Principal</label><input type="number" id="sim-p" value="1000.0" step="any"></div>
+            <div class="form-group"><label>Interest Rate (%)</label><input type="number" id="sim-i" value="10.0" step="any"></div>
+            <div class="form-group"><label>Years</label><input type="number" id="sim-n" value="5" step="any"></div>
+            <button class="calc-btn" onclick="calcSimpleComp()">Calculate</button>
+            <div id="sim-res" class="result-box"></div>
+            <div id="comp-res" class="result-box" style="margin-top:10px;"></div>
+        </div>
+
+        <div id="sec-equiv" class="section">
+            <h3>Economic Equivalence</h3>
+            <div class="form-group"><label>Present Worth</label><input type="number" id="eq-p" value="10000.0" step="any"></div>
+            <div class="form-group"><label>Interest Rate (%)</label><input type="number" id="eq-i" value="8.0" step="any"></div>
+            <div class="form-group"><label>Periods</label><input type="number" id="eq-n" value="5" step="any"></div>
+            <button class="calc-btn" onclick="calcEquiv()">Calculate</button>
+            <div id="eq-res" class="result-box"></div>
+        </div>
+
+        <div id="sec-diagram" class="section">
+            <h3>Cash Flow Diagram</h3>
+            <div class="form-group"><label>Enter Cash Flows (comma separated)</label><input type="text" id="diag-cf" value="-5000,1000,1500,2000,2500"></div>
+            <button class="calc-btn" onclick="drawDiagram()">Draw Diagram</button>
+            <div class="chart-container">
+                <canvas id="cfChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Navigation Logic ---
+        const menuItems = [
+            { name: "Single-amount F/P & P/F", id: "sec-single" },
+            { name: "Uniform series", id: "sec-uniform" },
+            { name: "Arithmetic gradient", id: "sec-arithmetic" },
+            { name: "Geometric gradient", id: "sec-geometric" },
+            { name: "Shifted series", id: "sec-shifted" },
+            { name: "Mixed cash flows", id: "sec-mixed" },
+            { name: "Find unknown i or n", id: "sec-unknown" },
+            { name: "Simple vs. compound interest", id: "sec-simple" },
+            { name: "Economic equivalence", id: "sec-equiv" },
+            { name: "Draw cash flow diagram", id: "sec-diagram" }
+        ];
+
+        const sidebar = document.getElementById("sidebar");
+        menuItems.forEach((item, index) => {
+            let btn = document.createElement("button");
+            btn.className = "menu-btn" + (index === 0 ? " active" : "");
+            btn.innerText = item.name;
+            btn.onclick = () => {
+                document.querySelectorAll(".menu-btn").forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+                document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+                document.getElementById(item.id).classList.add("active");
+                hideAllResults(); // Reset results on tab change
+            };
+            sidebar.appendChild(btn);
+        });
+
+        // Helper to format currency
+        const formatMoney = (num) => "$" + num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        
+        // Helper to clear results
+        function hideAllResults() {
+            document.querySelectorAll('.result-box, .warning-box, code').forEach(el => {
+                el.style.display = 'none';
+                el.innerHTML = '';
+            });
+        }
+        function showRes(id, html) {
+            let el = document.getElementById(id);
+            el.innerHTML = html;
+            el.style.display = 'block';
+        }
+
+        // --- Calculators ---
+        
+        function calcSingle() {
+            let opt = document.getElementById("single-opt").value;
+            let amt = parseFloat(document.getElementById("single-amt").value);
+            let i = parseFloat(document.getElementById("single-i").value) / 100;
+            let n = parseFloat(document.getElementById("single-n").value);
+            
+            let formulaBox = document.getElementById("single-formula");
+            formulaBox.style.display = 'block';
+
+            if (opt === "F/P") {
+                let F = amt * Math.pow((1 + i), n);
+                formulaBox.innerHTML = "<code>F = P(1+i)^n</code>";
+                showRes("single-res", "Future Worth = " + formatMoney(F));
+            } else {
+                let P = amt * (1 / Math.pow((1 + i), n));
+                formulaBox.innerHTML = "<code>P = F/(1+i)^n</code>";
+                showRes("single-res", "Present Worth = " + formatMoney(P));
+            }
+        }
+
+        function calcUniform() {
+            let opt = document.getElementById("uni-opt").value;
+            let amt = parseFloat(document.getElementById("uni-amt").value);
+            let i = parseFloat(document.getElementById("uni-i").value) / 100;
+            let n = parseFloat(document.getElementById("uni-n").value);
+            let factor, result, text;
+
+            let num = Math.pow((1+i), n) - 1;
+            
+            if (opt === "P/A") {
+                factor = num / (i * Math.pow((1+i), n));
+                result = amt * factor;
+                text = "Present Worth";
+            } else if (opt === "A/P") {
+                factor = (i * Math.pow((1+i), n)) / num;
+                result = amt * factor;
+                text = "Annual Amount";
+            } else if (opt === "F/A") {
+                factor = num / i;
+                result = amt * factor;
+                text = "Future Worth";
+            } else if (opt === "A/F") {
+                factor = i / num;
+                result = amt * factor;
+                text = "Annual Amount";
+            }
+            showRes("uni-res", text + " = " + formatMoney(result));
+        }
+
+        function calcArithmetic() {
+            let G = parseFloat(document.getElementById("arith-g").value);
+            let i = parseFloat(document.getElementById("arith-i").value) / 100;
+            let n = parseFloat(document.getElementById("arith-n").value);
+            
+            let AG = (1/i) - (n / (Math.pow((1+i), n) - 1));
+            let A = G * AG;
+            showRes("arith-res", "Equivalent Annual Amount = " + formatMoney(A));
+        }
+
+        function calcGeometric() {
+            let A1 = parseFloat(document.getElementById("geo-a1").value);
+            let g = parseFloat(document.getElementById("geo-g").value) / 100;
+            let i = parseFloat(document.getElementById("geo-i").value) / 100;
+            let n = parseFloat(document.getElementById("geo-n").value);
+            let P;
+
+            document.getElementById("geo-warn").style.display = 'none';
+
+            if (Math.abs(i - g) < 1e-9) {
+                P = (A1 * n) / (1 + i);
+                showRes("geo-warn", "Special Case Used: i = g");
+            } else {
+                P = (A1 / (i - g)) * (1 - Math.pow((1+g)/(1+i), n));
+            }
+            showRes("geo-res", "Present Worth = " + formatMoney(P));
+        }
+
+        function calcShifted() {
+            let A = parseFloat(document.getElementById("shift-a").value);
+            let i = parseFloat(document.getElementById("shift-i").value) / 100;
+            let n = parseFloat(document.getElementById("shift-n").value);
+            let shift = parseFloat(document.getElementById("shift-s").value);
+            
+            let PA = (Math.pow((1+i), n) - 1) / (i * Math.pow((1+i), n));
+            let P = A * PA;
+            let shifted_P = P / Math.pow((1+i), shift);
+            showRes("shift-res", "Shifted Present Worth = " + formatMoney(shifted_P));
+        }
+
+        function calcMixed() {
+            let valStr = document.getElementById("mix-cf").value;
+            let i = parseFloat(document.getElementById("mix-i").value) / 100;
+            let cashflows = valStr.split(",").map(x => parseFloat(x.trim()));
+            
+            let PW = 0;
+            cashflows.forEach((cf, index) => {
+                let year = index + 1;
+                PW += cf / Math.pow((1+i), year);
+            });
+            showRes("mix-res", "Present Worth = " + formatMoney(PW));
+        }
+
+        function toggleUnknownInputs() {
+            let opt = document.getElementById("unk-opt").value;
+            document.getElementById("unk-n-group").style.display = opt === "Find i" ? "block" : "none";
+            document.getElementById("unk-i-group").style.display = opt === "Find n" ? "block" : "none";
+        }
+
+        function calcUnknown() {
+            let opt = document.getElementById("unk-opt").value;
+            let P = parseFloat(document.getElementById("unk-p").value);
+            let F = parseFloat(document.getElementById("unk-f").value);
+            
+            if (opt === "Find i") {
+                let n = parseFloat(document.getElementById("unk-n").value);
+                let i = Math.pow((F/P), (1/n)) - 1;
+                showRes("unk-res", "Interest Rate = " + (i*100).toFixed(4) + "%");
+            } else {
+                let i = parseFloat(document.getElementById("unk-i").value) / 100;
+                let n = Math.log(F/P) / Math.log(1+i);
+                showRes("unk-res", "Periods = " + n.toFixed(2));
+            }
+        }
+
+        function calcSimpleComp() {
+            let P = parseFloat(document.getElementById("sim-p").value);
+            let i = parseFloat(document.getElementById("sim-i").value) / 100;
+            let n = parseFloat(document.getElementById("sim-n").value);
+            
+            let simple = P * (1 + i * n);
+            let compound = P * Math.pow((1+i), n);
+            
+            showRes("sim-res", "Simple Interest Amount = " + formatMoney(simple));
+            showRes("comp-res", "Compound Interest Amount = " + formatMoney(compound));
+        }
+
+        function calcEquiv() {
+            let P = parseFloat(document.getElementById("eq-p").value);
+            let i = parseFloat(document.getElementById("eq-i").value) / 100;
+            let n = parseFloat(document.getElementById("eq-n").value);
+            
+            let A = P * ((i * Math.pow((1+i), n)) / (Math.pow((1+i), n) - 1));
+            showRes("eq-res", "Equivalent Annual Amount = " + formatMoney(A));
+        }
+
+        // --- Chart.js ---
+        let cfChartInst = null;
+        function drawDiagram() {
+            let valStr = document.getElementById("diag-cf").value;
+            let cashflows = valStr.split(",").map(x => parseFloat(x.trim()));
+            let labels = Array.from({length: cashflows.length}, (_, i) => "Year " + i);
+            
+            let bgColors = cashflows.map(val => val >= 0 ? 'rgba(16, 185, 129, 0.7)' : 'rgba(239, 68, 68, 0.7)');
+            let borderColors = cashflows.map(val => val >= 0 ? 'rgba(16, 185, 129, 1)' : 'rgba(239, 68, 68, 1)');
+
+            const ctx = document.getElementById('cfChart').getContext('2d');
+            
+            if (cfChartInst) cfChartInst.destroy();
+            
+            cfChartInst = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Cash Flow',
+                        data: cashflows,
+                        backgroundColor: bgColors,
+                        borderColor: borderColors,
+                        borderWidth: 1,
+                        barPercentage: 0.2 // makes bars thin like arrows
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            title: { display: true, text: 'Cash Flow Amount' }
+                        },
+                        x: {
+                            title: { display: true, text: 'Time (Years)' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
